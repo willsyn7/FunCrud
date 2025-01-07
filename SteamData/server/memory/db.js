@@ -2,23 +2,40 @@ import pg from 'pg';
 
 const { Pool } = pg;
 
-// Corrected connection string format
-const PG_URI = `postgresql://postgres.krpcfcxwnfhrnriwzfas:Potatoe123!@aws-0-us-west-1.pooler.supabase.com:6543/postgres`;
+import postgres from 'postgres'
 
-// DATABASE_URL=postgresql://postgres:Potatoe123!@db.krpcfcxwnfhrnriwzfas.supabase.co:5432/postgres
-// DATABASE_URL=postgresql://postgres.krpcfcxwnfhrnriwzfas:Potatoe123!@aws-0-us-west-1.pooler.supabase.com:6543/postgres
 
-const pool = new Pool({
-  connectionString: PG_URI,
-});
+import dotenv from 'dotenv';
+dotenv.config();
+const connectionString = process.env.DATABASE_URL;
+
+// const pool = new Pool({
+//   connectionString: connectionString,
+// });
+
+// const checkDatabaseConnection = async () => {
+//   try {
+//     await pool.query('SELECT NOW()');
+//     console.log('Connected to the PostgreSQL database.');
+//   } catch (err) {
+//     console.error('Failed to connect to the PostgreSQL database:', err);
+//   }
+// };
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL environment variable is not defined');
+}
+
+const sql = postgres(connectionString);
 
 const checkDatabaseConnection = async () => {
   try {
-    await pool.query('SELECT NOW()');
+    await sql`SELECT NOW()`;
     console.log('Connected to the PostgreSQL database.');
   } catch (err) {
     console.error('Failed to connect to the PostgreSQL database:', err);
+    throw err;
   }
 };
 
-export { pool, checkDatabaseConnection };
+export { sql, checkDatabaseConnection };
